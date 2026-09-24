@@ -1,5 +1,5 @@
 // Networks Tollgate is deployed on. Pick one with ?net=<key>; Arc mainnet is the default.
-export const DEFAULT_NET = 'arbitrum-sepolia'; // switch back to 'arc' once the Arc mainnet contract is deployed
+export const DEFAULT_NET = 'arc'; // switch back to 'arc' once the Arc mainnet contract is deployed
 
 export const NETWORKS = {
   arc: {
@@ -9,7 +9,7 @@ export const NETWORKS = {
     native: { name: 'USDC', symbol: 'USDC', decimals: 18 },
     rpc: 'https://rpc.mainnet.arc.io',
     explorer: 'https://explorer.arc.io',
-    contract: '0x0000000000000000000000000000000000000000',
+    contract: '0xEF2B3226f14Bd201bF90C3bc489ebE829b39483F',
     minFeeGwei: 25, // Arc drops transactions below its 20 gwei base-fee floor
     tokens: {
       USDC: { address: '0x3600000000000000000000000000000000000000', decimals: 6 },

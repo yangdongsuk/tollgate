@@ -83,7 +83,9 @@ The full flow (contract, example server, agent and web app) was also run against
 
 | Network | Address |
 | --- | --- |
-| Arc mainnet (5042) | _pending_ |
+| Arc mainnet (5042) | [`0xEF2B3226f14Bd201bF90C3bc489ebE829b39483F`](https://explorer.arc.io/address/0xEF2B3226f14Bd201bF90C3bc489ebE829b39483F) ([deploy tx](https://explorer.arc.io/tx/0x0689d7245028b601ef92c007270db591536c42f8eda30960ba43ebe74b1cad27)) |
+
+A real channel on mainnet, [view it](https://yangdongsuk.github.io/tollgate/?channel=0xf84e1d9bc9e08709c720e606926b671ac8234a24f5fd37d7be62de52ad697330): [opened with 0.2 USDC](https://explorer.arc.io/tx/0x9035a84580624b6282c9f57a177de06f846baa043b759cd2eeed732912d9a4a7) → a voucher signed by an unfunded session key → [redeemed by the provider](https://explorer.arc.io/tx/0x296fe88cc1f864802e7983d4a263ee270c6c5538032b09a65fe71a3f82735aa0).
 | Arbitrum Sepolia (421614) | [`0xEF2B3226f14Bd201bF90C3bc489ebE829b39483F`](https://sepolia.arbiscan.io/address/0xEF2B3226f14Bd201bF90C3bc489ebE829b39483F) · app: [?net=arbitrum-sepolia](https://yangdongsuk.github.io/tollgate/?net=arbitrum-sepolia) · channels in **USDG** or USDC |
 
 ## Limitations
