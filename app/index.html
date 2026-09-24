@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tollgate · Pay-per-call USDC channels on Arc</title>
+<meta name="description" content="Prepaid USDC payment channels for pay-per-call APIs and AI agents on Arc. One deposit, thousands of calls, a few settlements.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%234338ca'/><path d='M7 12h18v3H7zM9 15h3v9H9zm11 0h3v9h-3z' fill='white'/></svg>">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": { "viem": "https://esm.sh/viem@2.56.8", "viem/accounts": "https://esm.sh/viem@2.56.8/accounts" } }
+</script>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <svg viewBox="0 0 32 32" aria-hidden="true"><rect width="32" height="32" rx="7" fill="currentColor"/><path d="M7 12h18v3H7zM9 15h3v9H9zm11 0h3v9h-3z" fill="var(--bg)"/></svg>
+    <div><b>Tollgate</b><span>Pay-per-call USDC channels on Arc</span></div>
+  </div>
+  <div class="wallet">
+    <span id="net" class="pill">Arc mainnet</span>
+    <button id="connect" class="btn">Connect wallet</button>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>Let your agent pay per API call<br>without handing it your wallet.</h1>
+    <p>Lock USDC in a channel for one API provider. Your agent signs a tiny off-chain voucher with every request, and the provider settles thousands of calls in a single transaction. The agent only holds a session key, so the most it can ever spend is the channel balance.</p>
+    <div class="flow">
+      <div><b>1 · Open</b><span>Deposit USDC, name the provider and a session key.</span></div>
+      <div><b>2 · Call</b><span>Each request carries a signed running total. No gas, no wait.</span></div>
+      <div><b>3 · Settle</b><span>The provider redeems the latest total whenever it wants.</span></div>
+      <div><b>4 · Close</b><span>Request close; after a grace period the rest comes back.</span></div>
+    </div>
+  </section>
+
+  <nav class="tabs" role="tablist">
+    <button role="tab" data-tab="lookup" class="tab active">Channel</button>
+    <button role="tab" data-tab="open" class="tab">Open a channel</button>
+    <button role="tab" data-tab="sign" class="tab">Sign a voucher</button>
+  </nav>
+
+  <section id="tab-lookup" class="panel">
+    <form id="lookup-form" class="row">
+      <input id="ch-id" placeholder="Channel ID (0x…64 hex)" required pattern="^0x[0-9a-fA-F]{64}$">
+      <button class="btn">Load</button>
+    </form>
+    <div id="channel"></div>
+  </section>
+
+  <section id="tab-open" class="panel" hidden>
+    <form id="open-form" class="stack">
+      <label>API provider address<input id="o-provider" placeholder="0x…" required pattern="^0x[0-9a-fA-F]{40}$"></label>
+      <div class="grid3">
+        <label>Currency<select id="o-token"><option>USDC</option><option>EURC</option></select></label>
+        <label>Deposit<input id="o-amount" type="number" min="0.000001" step="0.000001" value="1" required></label>
+        <label>Grace period (hours)<input id="o-grace" type="number" min="0.17" max="168" step="0.01" value="24" required></label>
+      </div>
+      <fieldset>
+        <legend>Who signs vouchers?</legend>
+        <label class="radio"><input type="radio" name="o-signer" value="session" checked> A new session key for my agent (recommended)</label>
+        <label class="radio"><input type="radio" name="o-signer" value="wallet"> My connected wallet</label>
+        <div id="o-session" class="session"></div>
+      </fieldset>
+      <button class="btn primary" id="o-submit">Deposit and open</button>
+    </form>
+    <div id="open-result"></div>
+  </section>
+
+  <section id="tab-sign" class="panel" hidden>
+    <form id="sign-form" class="stack">
+      <p class="muted">For testing: produce the <code>x-tollgate-voucher</code> header an agent would send. The key never leaves this page.</p>
+      <label>Channel ID<input id="s-channel" required pattern="^0x[0-9a-fA-F]{64}$"></label>
+      <div class="grid2">
+        <label>Session private key<input id="s-key" type="password" required pattern="^0x[0-9a-fA-F]{64}$"></label>
+        <label>Running total (e.g. 0.005)<input id="s-total" type="number" min="0.000001" step="0.000001" required></label>
+      </div>
+      <button class="btn primary">Sign</button>
+      <textarea id="s-out" rows="3" readonly placeholder="Header value appears here"></textarea>
+    </form>
+  </section>
+
+  <footer class="foot">
+    <span>Contract <a id="contract-link" target="_blank" rel="noopener"></a></span>
+    <span><a href="https://github.com/yangdongsuk/tollgate" target="_blank" rel="noopener">Source & SDK</a> · MIT · no owner, no fees</span>
+  </footer>
+</main>
+<div id="toast" role="status" aria-live="polite"></div>
+<script type="module" src="app.js"></script>
+</body>
+</html>

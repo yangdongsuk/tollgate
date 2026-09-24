@@ -1,0 +1,15 @@
+{
+  "name": "tollgate",
+  "version": "0.1.0",
+  "description": "Prepaid USDC payment channels for pay-per-call APIs and AI agents on Arc",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "server": "node examples/paid-api.mjs",
+    "agent": "node examples/agent.mjs",
+    "test:sdk": "node --test sdk/"
+  },
+  "dependencies": {
+    "viem": "2.56.8"
+  }
+}
