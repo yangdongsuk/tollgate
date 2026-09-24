@@ -1,5 +1,5 @@
 // Networks Tollgate is deployed on. Pick one with ?net=<key>; Arc mainnet is the default.
-export const DEFAULT_NET = 'arc'; // switch back to 'arc' once the Arc mainnet contract is deployed
+export const DEFAULT_NET = 'arc';
 
 export const NETWORKS = {
   arc: {
