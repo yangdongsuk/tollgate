@@ -84,6 +84,7 @@ The full flow (contract, example server, agent and web app) was also run against
 | Network | Address |
 | --- | --- |
 | Arc mainnet (5042) | _pending_ |
+| Arbitrum Sepolia (421614) | [`0xEF2B3226f14Bd201bF90C3bc489ebE829b39483F`](https://sepolia.arbiscan.io/address/0xEF2B3226f14Bd201bF90C3bc489ebE829b39483F) · app: [?net=arbitrum-sepolia](https://yangdongsuk.github.io/tollgate/?net=arbitrum-sepolia) · channels in **USDG** or USDC |
 
 ## Limitations
 

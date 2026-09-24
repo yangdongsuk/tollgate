@@ -1,15 +1,23 @@
 import { createPublicClient, createWalletClient, custom, http, parseUnits, formatUnits, isAddress, getAddress, parseGwei, decodeEventLog, parseAbi } from 'viem';
 import { generatePrivateKey, privateKeyToAccount } from 'viem/accounts';
-import { arc as arcMainnet, USDC, EURC, TOLLGATE_ABI, signVoucher, encodeVoucher, decodeVoucher } from './tollgate.mjs';
-import * as config from './config.js';
+import { TOLLGATE_ABI, signVoucher, encodeVoucher, decodeVoucher } from './tollgate.mjs';
+import { NETWORKS, DEFAULT_NET } from './config.js';
 
-// Local testing against `arc-anvil --network arc`: only on localhost, never on the public site.
+// ?net=<key> selects a deployment; local testing against `arc-anvil --network arc` is allowed only on localhost.
 const params = new URLSearchParams(location.search);
 const DEV = ['localhost', '127.0.0.1'].includes(location.hostname) && params.has('dev');
-const CONTRACT = DEV ? params.get('contract') : config.CONTRACT;
-const arc = DEV ? { ...arcMainnet, id: 31337, name: 'Arc (local)', rpcUrls: { default: { http: ['http://127.0.0.1:8547'] } } } : arcMainnet;
-const EXPLORER = arcMainnet.blockExplorers.default.url;
-const TOKENS = { USDC: { address: USDC, decimals: 6 }, EURC: { address: EURC, decimals: 6 } };
+const NET_KEY = NETWORKS[params.get('net')] ? params.get('net') : DEFAULT_NET;
+const NET = NETWORKS[NET_KEY];
+const CONTRACT = DEV ? params.get('contract') : NET.contract;
+const arc = {
+  id: DEV ? 31337 : NET.chainId,
+  name: DEV ? 'Arc (local)' : NET.name,
+  nativeCurrency: NET.native,
+  rpcUrls: { default: { http: [DEV ? 'http://127.0.0.1:8547' : NET.rpc] } },
+  blockExplorers: { default: { name: `${NET.name} Explorer`, url: NET.explorer } },
+};
+const EXPLORER = NET.explorer;
+const TOKENS = NET.tokens;
 const ABI = [...TOLLGATE_ABI, ...parseAbi([
   'function open(address provider, address signer, address token, uint128 amount, uint64 grace) returns (bytes32)',
   'function topUp(bytes32 channelId, uint128 amount)',
@@ -18,7 +26,7 @@ const ABI = [...TOLLGATE_ABI, ...parseAbi([
   'function closeByProvider(bytes32 channelId, uint256 cumulativeAmount, bytes signature)',
 ])];
 const ERC20 = parseAbi(['function allowance(address,address) view returns (uint256)', 'function approve(address,uint256) returns (bool)']);
-const MIN_FEE = parseGwei('25'); // Arc drops transactions below its 20 gwei floor
+const MIN_FEE = parseGwei(String(NET.minFeeGwei));
 const ZERO = '0x0000000000000000000000000000000000000000';
 
 const pub = createPublicClient({ chain: arc, transport: http() });
@@ -33,6 +41,7 @@ const addrLink = (a) => `<a href="${EXPLORER}/address/${a}" target="_blank" rel=
 const txLink = (h) => `<a href="${EXPLORER}/tx/${h}" target="_blank" rel="noopener">${h.slice(0, 10)}…</a>`;
 const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 const tokenOf = (a) => Object.entries(TOKENS).find(([, t]) => t.address.toLowerCase() === a.toLowerCase()) ?? ['tokens', { decimals: 6 }];
+const toHref = (q) => { const qs = new URLSearchParams(location.search); for (const [k, v] of Object.entries(q)) qs.set(k, v); return `?${qs}`; };
 
 function toast(html, ms = 5000) {
   const t = $('toast');
@@ -51,7 +60,7 @@ async function connect() {
     try { await wallet.switchChain({ id: arc.id }); } catch { await wallet.addChain({ chain: arc }); }
   }
   $('connect').textContent = short(account);
-  $('net').textContent = DEV ? 'Arc local (dev)' : 'Arc mainnet';
+  $('net').textContent = DEV ? 'Arc local (dev)' : NET.label;
   $('net').className = 'pill ok';
   window.ethereum.on?.('accountsChanged', ([a]) => { account = a; $('connect').textContent = a ? short(a) : 'Connect wallet'; if (current) load(current); });
   if (current) load(current);
@@ -198,7 +207,7 @@ async function openChannel(ev) {
     const id = opened?.args.channelId;
     $('open-result').innerHTML = `<div class="card"><b>Channel open with ${formatUnits(amount, tok.decimals)} ${sym}.</b>
       <p class="mono">CHANNEL_ID=${id}<br>TOLLGATE=${CONTRACT}${useSession ? `<br>SESSION_KEY=(the key you copied)` : ''}</p>
-      <p class="muted">Share the channel ID with the provider. <a href="?channel=${id}">View channel</a></p></div>`;
+      <p class="muted">Share the channel ID with the provider. <a href="${toHref({ channel: id })}">View channel</a></p></div>`;
     if (useSession) pendingSession = null;
   } catch (e) {
     toast(`Failed: ${esc(e.shortMessage || e.message)}`, 8000);
@@ -235,7 +244,8 @@ $('open-form').onsubmit = openChannel;
 $('sign-form').onsubmit = signForm;
 $('contract-link').href = `${EXPLORER}/address/${CONTRACT}`;
 $('contract-link').textContent = short(CONTRACT);
-if (DEV) $('net').textContent = 'Arc local (dev)';
+$('net').textContent = DEV ? 'Arc local (dev)' : NET.label;
+$('o-token').innerHTML = Object.keys(TOKENS).map((k) => `<option>${k}</option>`).join('');
 renderSession();
 const q = params.get('channel');
 if (q) { $('ch-id').value = q; load(q); }
