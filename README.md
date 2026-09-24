@@ -6,6 +6,8 @@ Deposit once, pay per request with off-chain vouchers, settle thousands of calls
 
 **Live app:** https://yangdongsuk.github.io/tollgate/ · **Contract:** see [Deployment](#deployment)
 
+**Demo video (1:35):** [tollgate-demo.mp4](https://github.com/yangdongsuk/tollgate/releases/download/v0.1.0-demo/tollgate-demo.mp4) ([release](https://github.com/yangdongsuk/tollgate/releases/tag/v0.1.0-demo)), recorded on a local Arc node (`arc-anvil --network arc`) with test accounts, plus the live Arbitrum Sepolia app
+
 ## The problem
 
 AI agents increasingly need to buy things per call: an API request, a search, a model inference worth a fraction of a cent. Two bad options exist today:
